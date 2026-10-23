@@ -59,14 +59,14 @@ jobs:
 
       - name: Deploy to Firebase Functions
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN || vars.FIREBASE_TOKEN }}
         run: |
-          if [ -n "$FIREBASE_TOKEN" ]; then
-            npx firebase-tools deploy --only functions --token "$FIREBASE_TOKEN"
-          else
-            echo "FIREBASE_TOKEN secret is not set. Please add FIREBASE_TOKEN in GitHub Repository Secrets."
+          if [ -z "$FIREBASE_TOKEN" ]; then
+            echo "::error::FIREBASE_TOKEN secret is empty. Please add FIREBASE_TOKEN in GitHub Repository Secrets."
             exit 1
           fi
+          echo "Deploying Cloud Functions to project novotionsalesandlead..."
+          npx firebase-tools deploy --only functions --project novotionsalesandlead --token "$FIREBASE_TOKEN" --non-interactive
 
   # ============================================================================
   # JOB 2: Windows Desktop Build & Release
@@ -280,11 +280,11 @@ jobs:
 
       - name: Deploy to Firebase Hosting
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN || vars.FIREBASE_TOKEN }}
         run: |
-          if [ -n "$FIREBASE_TOKEN" ]; then
-            npx firebase-tools deploy --only hosting --token "$FIREBASE_TOKEN"
-          else
-            echo "FIREBASE_TOKEN secret is not set. Please add FIREBASE_TOKEN in GitHub Repository Secrets."
+          if [ -z "$FIREBASE_TOKEN" ]; then
+            echo "::error::FIREBASE_TOKEN secret is empty. Please add FIREBASE_TOKEN in GitHub Repository Secrets."
             exit 1
           fi
+          echo "Deploying Web Frontend and /releases/ to project novotionsalesandlead..."
+          npx firebase-tools deploy --only hosting --project novotionsalesandlead --token "$FIREBASE_TOKEN" --non-interactive
