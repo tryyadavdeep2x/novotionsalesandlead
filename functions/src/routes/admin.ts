@@ -43,8 +43,9 @@ router.post('/keys', async (req, res): Promise<any> => {
   }
 
   try {
+    const cleanKey = parseResult.data.key.trim();
     const existing = await prisma.accessKey.findUnique({
-      where: { key: parseResult.data.key },
+      where: { key: cleanKey },
     });
 
     if (existing) {
@@ -52,7 +53,10 @@ router.post('/keys', async (req, res): Promise<any> => {
     }
 
     const newKey = await prisma.accessKey.create({
-      data: parseResult.data,
+      data: {
+        ...parseResult.data,
+        key: cleanKey,
+      },
     });
 
     return res.status(201).json(newKey);

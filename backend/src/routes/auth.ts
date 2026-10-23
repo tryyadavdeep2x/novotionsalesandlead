@@ -1,4 +1,4 @@
-﻿import { Router, Response } from 'express';
+import { Router, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../server.js';
@@ -13,17 +13,35 @@ router.post('/login', async (req, res): Promise<any> => {
 
   try {
     if (type === 'KEY') {
-      if (!accessKey) {
+      if (!accessKey || !String(accessKey).trim()) {
         return res.status(400).json({ error: 'Access Key is required' });
       }
 
-      // Look up key in DB
-      const dbKey = await prisma.accessKey.findUnique({
-        where: { key: accessKey },
+      const cleanKey = String(accessKey).trim();
+
+      // Look up key in DB (exact match first)
+      let dbKey = await prisma.accessKey.findUnique({
+        where: { key: cleanKey },
       });
 
-      if (!dbKey || !dbKey.isActive) {
-        return res.status(401).json({ error: 'Invalid or deactivated Access Key' });
+      // Fallback: check case-insensitive match
+      if (!dbKey) {
+        dbKey = await prisma.accessKey.findFirst({
+          where: {
+            OR: [
+              { key: cleanKey.toUpperCase() },
+              { key: cleanKey.toLowerCase() },
+            ],
+          },
+        });
+      }
+
+      if (!dbKey) {
+        return res.status(401).json({ error: 'Access Key not found. Please verify the key token.' });
+      }
+
+      if (!dbKey.isActive) {
+        return res.status(401).json({ error: 'This Access Key has been deactivated. Contact Admin.' });
       }
 
       // Sign JWT token
