@@ -1,6 +1,6 @@
 {
   "name": "novotion-sales-lead-portal",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Novotion Services LLP - Sales & Lead Management Desktop Portal",
   "main": "electron/main.cjs",
   "author": "Novotion Services LLP",

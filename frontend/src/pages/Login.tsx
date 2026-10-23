@@ -1,7 +1,4 @@
-import { ServerConfigModal } from '../components/ServerConfigModal.js';
-import { getServerUrl, checkServerHealth } from '../utils/api.js';
-import { Server } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext.js';
 import { motion } from 'framer-motion';
 import { KeyRound, UserCheck, AlertTriangle, Moon, Sun, ShieldCheck } from 'lucide-react';
@@ -15,12 +12,6 @@ export const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [isServerModalOpen, setIsServerModalOpen] = useState(false);
-  const [serverOnline, setServerOnline] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    checkServerHealth().then(res => setServerOnline(res.ok));
-  }, []);
 
   const handleKeySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,8 +40,6 @@ export const Login: React.FC = () => {
       setLoading(false);
     }
   };
-
-  const isDesktop = typeof window !== 'undefined' && Boolean((window as any).electronAPI);
 
   return (
     <div className="min-h-screen w-full relative flex items-center justify-center bg-canvas text-foreground px-4 py-8 transition-colors duration-200">
@@ -204,36 +193,7 @@ export const Login: React.FC = () => {
             </button>
           </form>
         )}
-
-        {/* Server Connection Status (Visible only in Desktop Shell) */}
-        {isDesktop && (
-          <div className="mt-5 flex items-center justify-between p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-800 text-[11px]">
-            <div className="flex items-center gap-2">
-              <span className={`h-2 w-2 rounded-full ${serverOnline === true ? 'bg-emerald-500 animate-pulse' : serverOnline === false ? 'bg-rose-500' : 'bg-amber-400'}`} />
-              <span className="text-slate-500 dark:text-slate-400 font-mono text-[10px]">
-                {getServerUrl().replace(/^https?:\/\//, '')}
-              </span>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setIsServerModalOpen(true)}
-              className="text-blue-600 dark:text-blue-400 hover:underline font-medium text-[11px] bg-transparent border-none cursor-pointer flex items-center gap-1"
-            >
-              <Server className="h-3 w-3" />
-              Change Server
-            </button>
-          </div>
-        )}
       </motion.div>
-
-      {isDesktop && (
-        <ServerConfigModal
-          isOpen={isServerModalOpen}
-          onClose={() => setIsServerModalOpen(false)}
-          onSaved={() => checkServerHealth().then(res => setServerOnline(res.ok))}
-        />
-      )}
     </div>
   );
 };

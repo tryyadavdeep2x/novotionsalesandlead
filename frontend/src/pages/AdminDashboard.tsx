@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NovotionLogo } from '../components/NovotionLogo.js';
 import { BatchAllocateModal } from '../components/BatchAllocateModal.js';
+import { ServerConfigModal } from '../components/ServerConfigModal.js';
 import { useAuth } from '../context/AuthContext.js';
 import { useToast } from '../components/Toast.js';
 import { UnifiedDashboardView } from '../components/UnifiedDashboardView.js';
@@ -10,7 +11,7 @@ import { SalesIndividualMonthlyDashboard } from '../components/SalesIndividualMo
 import { GlobalSearchModal } from '../components/GlobalSearchModal.js';
 import { NovotionEmailOnboarding } from '../components/email-automation/index.js';
 import { 
-  LogOut, Key, Sun, Moon, Search, LayoutDashboard, Briefcase, Users, Award, Plus, Copy, Check, X, Trash2, Zap, Mail, ExternalLink
+  LogOut, Key, Sun, Moon, Search, LayoutDashboard, Briefcase, Users, Award, Plus, Copy, Check, X, Trash2, Zap, Mail, ExternalLink, Server
 } from 'lucide-react';
 import { apiFetch } from '../utils/api.js';
 
@@ -29,6 +30,8 @@ export const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'UNIFIED' | 'SALES' | 'LEADS_MONTHLY' | 'SALES_MONTHLY' | 'EMAIL_AUTOMATION' | 'KEYS'>('UNIFIED');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isBatchAllocateOpen, setIsBatchAllocateOpen] = useState(false);
+  const [isServerModalOpen, setIsServerModalOpen] = useState(false);
+  const isDesktop = typeof window !== 'undefined' && Boolean((window as any).electronAPI);
 
   // Access keys state
   const [keys, setKeys] = useState<AccessKeyType[]>([]);
@@ -130,6 +133,16 @@ export const AdminDashboard: React.FC = () => {
                 ⌘K
               </kbd>
             </button>
+
+            {isDesktop && (
+              <button
+                onClick={() => setIsServerModalOpen(true)}
+                className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/80 transition-all cursor-pointer"
+                title="Server Connection Settings"
+              >
+                <Server className="h-4 w-4 text-blue-500" />
+              </button>
+            )}
 
             <button
               onClick={toggleTheme}
@@ -402,6 +415,13 @@ export const AdminDashboard: React.FC = () => {
         onClose={() => setIsSearchOpen(false)}
         onSelectSalesLead={() => setActiveTab('SALES')}
       />
+
+      {isDesktop && (
+        <ServerConfigModal
+          isOpen={isServerModalOpen}
+          onClose={() => setIsServerModalOpen(false)}
+        />
+      )}
     </div>
   );
 };
