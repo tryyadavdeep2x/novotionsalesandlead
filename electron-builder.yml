@@ -1,0 +1,39 @@
+appId: com.novotionservices.salesleadportal
+productName: "Novotion Sales & Lead Portal"
+copyright: "Copyright © 2026 Novotion Services LLP"
+
+directories:
+  output: release
+  buildResources: electron/assets
+
+files:
+  - "electron/**/*"
+  - "frontend/dist/**/*"
+  - "package.json"
+
+asar: true
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: electron/assets/icon.png
+  artifactName: "Novotion-Sales-Lead-Portal-Setup-${version}.${ext}"
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: "Novotion Sales & Lead Portal"
+  deleteAppDataOnUninstall: false
+  runAfterFinish: true
+
+publish:
+  - provider: generic
+    url: "https://novotionsalesandlead.web.app/releases/"
+  - provider: github
+    owner: novotionservices
+    repo: novotion-sales-lead-portal

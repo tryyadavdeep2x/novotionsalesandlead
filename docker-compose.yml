@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  # ==========================================================
+  # PROJECT 1: NOVOTION CRM PORTAL (PORT 3000 & 4000)
+  # ==========================================================
+  crm-backend:
+    build:
+      context: ./1-novotion-crm-portal/backend
+      dockerfile: Dockerfile
+    container_name: novotion_crm_backend
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+      - DATABASE_URL=file:./dev.db
+      - JWT_SECRET=novotion-crm-secret
+      - NODE_ENV=development
+    volumes:
+      - ./1-novotion-crm-portal/backend/prisma:/app/prisma
+
+  crm-frontend:
+    build:
+      context: ./1-novotion-crm-portal/frontend
+      dockerfile: Dockerfile
+    container_name: novotion_crm_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_BACKEND_URL=http://crm-backend:4000
+      - PORT=3000
+    depends_on:
+      - crm-backend
+
+  # ==========================================================
+  # PROJECT 2: NOVOTION LEAD PROSPECTOR (PORT 3001 & 8000)
+  # ==========================================================
+  prospector-backend:
+    build:
+      context: ./2-novotion-lead-prospector/backend
+      dockerfile: Dockerfile
+    container_name: novotion_prospector_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - HOST=0.0.0.0
+      - CRM_API_URL=http://crm-backend:4000
+
+  prospector-frontend:
+    build:
+      context: ./2-novotion-lead-prospector/frontend
+      dockerfile: Dockerfile
+    container_name: novotion_prospector_frontend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+      - VITE_CRM_API_URL=http://localhost:4000
+    depends_on:
+      - prospector-backend
+
+  # ==========================================================
+  # PROJECT 3: NOVOTION EMAIL AUTOMATION (PORT 5050 & 5051)
+  # ==========================================================
+  email-backend:
+    build:
+      context: ./3-novotion-email-automation/backend
+      dockerfile: Dockerfile
+    container_name: novotion_email_backend
+    restart: unless-stopped
+    ports:
+      - "5051:5051"
+    environment:
+      - PORT=5051
+      - CORS_ORIGIN=http://localhost:5050
+
+  email-frontend:
+    build:
+      context: ./3-novotion-email-automation/frontend
+      dockerfile: Dockerfile
+    container_name: novotion_email_frontend
+    restart: unless-stopped
+    ports:
+      - "5050:5050"
+    environment:
+      - VITE_API_URL=http://localhost:5051
+    depends_on:
+      - email-backend
+
+networks:
+  default:
+    name: novotion_network

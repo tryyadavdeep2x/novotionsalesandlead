@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Novotion Email Automation | Smart AI & SMTP Outreach</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- SheetJS for client-side instant Excel previews -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <!-- TOP NAVIGATION BAR -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="logo-area">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9.5C2 7 4 5 6.5 5H18c2.2 0 4 1.8 4 4v8z"></path>
+            <polyline points="22,6 12,13 2,6"></polyline>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <h1>Novotion Email <span class="badge-studio">AUTOMATION</span></h1>
+          <p>Intelligent AI Cold Outreach & SMTP Campaign Engine</p>
+        </div>
+      </div>
+
+      <div class="header-status">
+        <!-- THEME SWITCHER -->
+        <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Light / Dark Mode">
+          <span id="themeToggleIcon">☀️</span>
+          <span id="themeToggleText">Light</span>
+        </button>
+
+        <!-- AI STATUS PILL -->
+        <button class="ai-status-pill" id="headerAiPill" title="Configure AI Provider & Model">
+          <span class="status-dot disconnected" id="aiStatusDot"></span>
+          <span class="status-label" id="aiStatusLabel">🤖 AI: Connect Account</span>
+        </button>
+
+        <button class="btn btn-primary btn-sm" id="launchAiDrawerBtn">
+          <span>✨ AI Copilot</span>
+        </button>
+
+        <!-- SMTP STATUS PILL -->
+        <div class="smtp-status-pill" id="headerSmtpPill">
+          <span class="status-dot disconnected"></span>
+          <span class="status-label">SMTP: Not Connected</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- WIZARD STEP NAVIGATION -->
+    <nav class="steps-nav">
+      <div class="steps-container">
+        <button class="step-btn active" data-step="1" id="stepBtn1">
+          <span class="step-number">1</span>
+          <div class="step-meta">
+            <span class="step-title">SMTP Connect</span>
+            <span class="step-desc">Auto-detect server</span>
+          </div>
+        </button>
+
+        <div class="step-divider"></div>
+
+        <button class="step-btn" data-step="2" id="stepBtn2">
+          <span class="step-number">2</span>
+          <div class="step-meta">
+            <span class="step-title">Recipients & Excel</span>
+            <span class="step-desc">Upload or enter contacts</span>
+          </div>
+        </button>
+
+        <div class="step-divider"></div>
+
+        <button class="step-btn" data-step="3" id="stepBtn3">
+          <span class="step-number">3</span>
+          <div class="step-meta">
+            <span class="step-title">Personalize Template</span>
+            <span class="step-desc">Dynamic first name tags</span>
+          </div>
+        </button>
+
+        <div class="step-divider"></div>
+
+        <button class="step-btn" data-step="4" id="stepBtn4">
+          <span class="step-number">4</span>
+          <div class="step-meta">
+            <span class="step-title">Launch Campaign</span>
+            <span class="step-desc">Live progress & dispatch</span>
+          </div>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- MAIN APP CONTAINER -->
+  <main class="app-main">
+    
+    <!-- ======================================================= -->
+    <!-- STEP 1: SMTP AUTO-DISCOVERY & CONNECTION                -->
+    <!-- ======================================================= -->
+    <section class="step-section active" id="stepSection1">
+      <div class="card hero-card">
+        <div class="card-header">
+          <div class="header-icon-badge">⚡</div>
+          <div>
+            <h2>Step 1: Connect Your Email Account</h2>
+            <p class="subtitle">Enter your email address. MailFlow will automatically find your outgoing SMTP, incoming IMAP, and POP3 server addresses and encryption settings.</p>
+          </div>
+        </div>
+
+        <!-- SAVED SMTP SERVER PROFILES & SESSIONS PANEL -->
+        <div class="saved-profiles-panel" id="savedProfilesPanel">
+          <div class="saved-profiles-header">
+            <div class="saved-profiles-title">
+              <span class="profiles-icon">💾</span>
+              <div>
+                <h4>Saved SMTP Profiles & Frequent Sessions</h4>
+                <p>Switch between frequent email servers and saved credentials with 1 click.</p>
+              </div>
+            </div>
+            <div class="saved-profiles-actions">
+              <button type="button" class="btn btn-outline btn-sm" id="saveCurrentSmtpBtn" title="Save current settings as a new profile">
+                <span>💾 Save Current Account</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="saved-profiles-bar">
+            <div class="profile-select-wrap">
+              <label for="savedSmtpProfileSelect">Active Saved Profile / Session</label>
+              <select id="savedSmtpProfileSelect">
+                <option value="">-- Select a Saved SMTP Session --</option>
+              </select>
+            </div>
+            <div class="profile-buttons-wrap">
+              <button type="button" class="btn btn-primary btn-sm" id="loadSmtpProfileBtn">
+                <span>⚡ Load Profile</span>
+              </button>
+              <button type="button" class="btn btn-outline text-danger btn-sm hidden" id="deleteSmtpProfileBtn" title="Delete selected profile">
+                <span>🗑️ Delete</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Chips for Frequent Accounts -->
+          <div class="quick-profiles-chips" id="quickProfilesChips">
+            <span class="quick-chips-label">Quick Switch:</span>
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <div class="autodiscover-input-box">
+          <label for="emailInput">Your Email Address</label>
+          <div class="input-with-action">
+            <input type="email" id="emailInput" placeholder="e.g. yourname@gmail.com, ceo@company.com, or alex@outlook.com" autocomplete="email">
+            <button class="btn btn-primary" id="autoDetectBtn">
+              <span class="btn-text">🔍 Auto-Detect Servers</span>
+              <span class="btn-spinner hidden"></span>
+            </button>
+          </div>
+          <p class="input-hint">Type any email address — MailFlow queries ISPDB, DNS MX records, and provider databases in real-time.</p>
+        </div>
+
+        <!-- DETECTED PROVIDER SUMMARY -->
+        <div class="detected-summary hidden" id="detectedSummaryBox">
+          <div class="summary-header">
+            <div class="provider-info">
+              <span class="badge badge-success" id="providerBadge">Google Workspace</span>
+              <span class="detect-method" id="detectMethodText">Discovered via Provider Catalog</span>
+            </div>
+            <span class="detect-check">✓ Server Profiles Found</span>
+          </div>
+
+          <div class="protocols-grid">
+            <!-- SMTP CARD -->
+            <div class="protocol-card highlight">
+              <div class="protocol-header">
+                <span class="proto-tag">SMTP (Outgoing)</span>
+                <span class="proto-status" id="smtpSecureBadge">SSL / 465</span>
+              </div>
+              <div class="proto-body">
+                <div class="proto-row">
+                  <span class="label">Server Host:</span>
+                  <span class="value code" id="detectedSmtpHost">smtp.gmail.com</span>
+                </div>
+                <div class="proto-row">
+                  <span class="label">Port:</span>
+                  <span class="value code" id="detectedSmtpPort">465</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- IMAP CARD -->
+            <div class="protocol-card">
+              <div class="protocol-header">
+                <span class="proto-tag">IMAP (Incoming)</span>
+                <span class="proto-status" id="imapSecureBadge">SSL / 993</span>
+              </div>
+              <div class="proto-body">
+                <div class="proto-row">
+                  <span class="label">Server Host:</span>
+                  <span class="value code" id="detectedImapHost">imap.gmail.com</span>
+                </div>
+                <div class="proto-row">
+                  <span class="label">Port:</span>
+                  <span class="value code" id="detectedImapPort">993</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- POP3 CARD -->
+            <div class="protocol-card">
+              <div class="protocol-header">
+                <span class="proto-tag">POP3 (Incoming)</span>
+                <span class="proto-status" id="popSecureBadge">SSL / 995</span>
+              </div>
+              <div class="proto-body">
+                <div class="proto-row">
+                  <span class="label">Server Host:</span>
+                  <span class="value code" id="detectedPopHost">pop.gmail.com</span>
+                </div>
+                <div class="proto-row">
+                  <span class="label">Port:</span>
+                  <span class="value code" id="detectedPopPort">995</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AUTH GUIDANCE BOX (e.g. Gmail App Password) -->
+          <div class="auth-guide-box" id="authGuideBox">
+            <div class="guide-icon">💡</div>
+            <div class="guide-content">
+              <strong>Authentication Tip:</strong>
+              <p id="authGuideText">Google requires 2-Step Verification and a 16-character App Password (go to myaccount.google.com -> Security -> 2-Step Verification -> App Passwords).</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SMTP CREDENTIALS & LOGIN FORM -->
+        <div class="smtp-login-form">
+          <h3 class="form-title">SMTP Authentication & Sender Credentials</h3>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="smtpUser">Username / Login Email <span class="required">*</span></label>
+              <input type="text" id="smtpUser" placeholder="yourname@domain.com">
+            </div>
+
+            <div class="form-group">
+              <label for="smtpPass">Password / App Password <span class="required">*</span></label>
+              <div class="password-toggle-wrap">
+                <input type="password" id="smtpPass" placeholder="Enter password or app password">
+                <button type="button" class="btn-toggle-pw" id="togglePwBtn" title="Show/Hide Password">👁️</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="senderName">Sender Display Name (Optional)</label>
+              <input type="text" id="senderName" placeholder="e.g. Alex from Novotion">
+            </div>
+
+            <div class="form-group">
+              <label for="replyToEmail">Reply-To Address (Optional)</label>
+              <input type="email" id="replyToEmail" placeholder="e.g. replies@novotion.com">
+            </div>
+          </div>
+
+          <!-- ADVANCED MANUAL OVERRIDE ACCORDION -->
+          <details class="advanced-accordion" id="advancedAccordion">
+            <summary>⚙️ Advanced Server Settings (Manual Override)</summary>
+            <div class="advanced-fields">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="manualSmtpHost">SMTP Hostname</label>
+                  <input type="text" id="manualSmtpHost" placeholder="smtp.domain.com">
+                </div>
+                <div class="form-group">
+                  <label for="manualSmtpPort">SMTP Port</label>
+                  <input type="number" id="manualSmtpPort" placeholder="465 or 587" value="465">
+                </div>
+                <div class="form-group">
+                  <label for="manualSmtpSecure">Encryption Protocol</label>
+                  <select id="manualSmtpSecure">
+                    <option value="true">SSL / TLS (Port 465 - Recommended)</option>
+                    <option value="false">STARTTLS (Port 587)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </details>
+
+          <!-- TEST & PROCEED BUTTONS -->
+          <div class="form-actions">
+            <button class="btn btn-secondary" id="testSmtpBtn">
+              <span class="btn-icon">🔌</span>
+              <span class="btn-text">Test Connection & Login</span>
+              <span class="btn-spinner hidden"></span>
+            </button>
+
+            <button class="btn btn-primary" id="proceedToStep2Btn">
+              <span>Next: Upload Excel & Contacts ➔</span>
+            </button>
+          </div>
+
+          <!-- TEST STATUS ALERT -->
+          <div class="alert-box hidden" id="smtpAlertBox"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================= -->
+    <!-- STEP 2: RECIPIENTS & EXCEL UPLOAD                       -->
+    <!-- ======================================================= -->
+    <section class="step-section hidden" id="stepSection2">
+      <div class="card">
+        <div class="card-header">
+          <div class="header-icon-badge">👥</div>
+          <div>
+            <h2>Step 2: Add Recipients (Excel or Manual)</h2>
+            <p class="subtitle">Upload your contact list (.xlsx, .xls, .csv) or enter them manually. MailFlow automatically extracts First Names, Emails, Companies, and all custom columns.</p>
+          </div>
+        </div>
+
+        <div class="recipients-toolbar">
+          <div class="upload-dropzone" id="uploadDropzone">
+            <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" class="file-input-hidden">
+            <div class="dropzone-content">
+              <div class="upload-icon">📊</div>
+              <h4>Drag & Drop Excel (.xlsx, .xls) or CSV here</h4>
+              <p>or <span class="browse-link">browse files</span> from your computer</p>
+              <div class="dropzone-badges">
+                <span class="badge">Automatic First Name Detection</span>
+                <span class="badge">Column Normalization</span>
+                <span class="badge">Unlimited Custom Merge Tags</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="quick-actions-bar">
+            <button class="btn btn-outline" id="downloadSampleBtn">
+              <span>📥 Download Sample Excel Template</span>
+            </button>
+            <button class="btn btn-outline" id="addManualContactBtn">
+              <span>➕ Add Single Contact</span>
+            </button>
+            <button class="btn btn-outline text-danger" id="clearContactsBtn">
+              <span>🗑️ Clear List</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- CONTACTS STATS & SEARCH BAR -->
+        <div class="contacts-bar">
+          <div class="contacts-stat-group">
+            <div class="stat-pill">
+              <span class="stat-count" id="totalContactsCount">0</span>
+              <span class="stat-label">Total Recipients</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-count text-success" id="validEmailsCount">0</span>
+              <span class="stat-label">Valid Emails</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-count" id="columnsCount">0</span>
+              <span class="stat-label">Detected Fields</span>
+            </div>
+          </div>
+
+          <div class="search-filter-box">
+            <input type="text" id="contactSearchInput" placeholder="🔍 Search by name, email, or company...">
+          </div>
+        </div>
+
+        <!-- RECIPIENTS DATA TABLE -->
+        <div class="table-responsive">
+          <table class="contacts-table" id="contactsTable">
+            <thead>
+              <tr>
+                <th width="50">#</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email Address</th>
+                <th>Company</th>
+                <th>Position</th>
+                <th width="90">Action</th>
+              </tr>
+            </thead>
+            <tbody id="contactsTableBody">
+              <tr class="empty-row">
+                <td colspan="7">
+                  <div class="empty-state">
+                    <span class="empty-icon">📭</span>
+                    <p>No contacts loaded yet.</p>
+                    <span class="empty-sub">Upload an Excel file or click "Add Single Contact" to begin.</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="step-nav-footer">
+          <button class="btn btn-outline" onclick="goToStep(1)">⬅ Back to SMTP Setup</button>
+          <button class="btn btn-primary" id="proceedToStep3Btn">
+            <span>Next: Personalize Email Template ➔</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================= -->
+    <!-- STEP 3: PERSONALIZE TEMPLATE & LIVE PREVIEW             -->
+    <!-- ======================================================= -->
+    <section class="step-section hidden" id="stepSection3">
+      <div class="card">
+        <div class="card-header">
+          <div class="header-icon-badge">✍️</div>
+          <div>
+            <h2>Step 3: Compose Personalized Email & Live Preview</h2>
+            <p class="subtitle">Use merge tags like <code class="tag-pill">{{first_name}}</code> or <code class="tag-pill">{{company}}</code>. MailFlow automatically personalizes every email dynamically for each recipient.</p>
+          </div>
+        </div>
+
+        <div class="template-split-container">
+          <!-- LEFT COLUMN: COMPOSE EDITOR -->
+          <div class="editor-pane">
+            <!-- AI AGENT COMPOSER HERO BANNER -->
+            <div class="ai-composer-banner">
+              <div class="ai-banner-left">
+                <div class="ai-glow-icon">🤖</div>
+                <div>
+                  <strong style="display:flex; align-items:center; gap:8px; font-size:0.95rem;">
+                    Novotion AI Outreach Agent
+                    <span class="badge" style="background:rgba(99,102,241,0.2); color:#c7d2fe; font-size:0.68rem;">AUTOPILOT</span>
+                  </strong>
+                  <p style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">
+                    Generate high-converting cold emails, subject lines, or follow-ups customized to your contacts with 1 click.
+                  </p>
+                </div>
+              </div>
+              <button type="button" class="btn btn-primary btn-sm" id="openAiDrawerFromStep3Btn">
+                <span>✨ Launch AI Agent</span>
+              </button>
+            </div>
+
+            <div class="preset-templates-bar">
+              <label for="templatePresetSelect">Load Sample Template:</label>
+              <select id="templatePresetSelect">
+                <option value="cold_intro">🤝 B2B Executive Introduction</option>
+                <option value="healthcare_outreach">🏥 Healthcare Partnership Pitch</option>
+                <option value="quick_followup">⏱️ Quick Professional Follow-Up</option>
+                <option value="custom">✏️ Custom Blank Template</option>
+              </select>
+            </div>
+
+            <!-- DYNAMIC MERGE TAG PILLS -->
+            <div class="merge-tags-section">
+              <span class="tags-label">Click to insert personalized merge tag:</span>
+              <div class="tags-pills-list" id="mergeTagsPills">
+                <button type="button" class="merge-tag-chip" data-tag="{{first_name}}">🏷️ {{first_name}}</button>
+                <button type="button" class="merge-tag-chip" data-tag="{{last_name}}">🏷️ {{last_name}}</button>
+                <button type="button" class="merge-tag-chip" data-tag="{{company}}">🏢 {{company}}</button>
+                <button type="button" class="merge-tag-chip" data-tag="{{position}}">💼 {{position}}</button>
+                <button type="button" class="merge-tag-chip" data-tag="{{email}}">✉️ {{email}}</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="emailSubject">Subject Line <span class="required">*</span></label>
+              <input type="text" id="emailSubject" placeholder="e.g. Quick question for {{first_name}} regarding {{company}}">
+            </div>
+
+            <div class="form-group">
+              <label for="emailBody">Email Message Body (HTML / Text Supported) <span class="required">*</span></label>
+              <textarea id="emailBody" rows="12" placeholder="Hi {{first_name}},\n\nI noticed your work at {{company}} as {{position}}..."></textarea>
+            </div>
+
+            <div class="test-send-bar">
+              <div class="test-send-input-group">
+                <input type="email" id="testEmailRecipient" placeholder="Send test email to your inbox...">
+                <button class="btn btn-secondary" id="sendTestEmailBtn">
+                  <span class="btn-text">📨 Send Test Email</span>
+                  <span class="btn-spinner hidden"></span>
+                </button>
+              </div>
+              <div class="test-email-status hidden" id="testEmailStatus"></div>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN: LIVE DYNAMIC PREVIEW -->
+          <div class="preview-pane">
+            <!-- macOS Window Header Bar -->
+            <div class="mac-window-bar">
+              <div class="mac-window-dots">
+                <span class="mac-dot red"></span>
+                <span class="mac-dot yellow"></span>
+                <span class="mac-dot green"></span>
+              </div>
+              <div class="preview-recipient-switcher">
+                <button class="btn-icon-nav" id="prevRecipientBtn" title="Previous Recipient">◀</button>
+                <span class="current-preview-label" id="previewRecipientIndex">Recipient 1 of 1</span>
+                <button class="btn-icon-nav" id="nextRecipientBtn" title="Next Recipient">▶</button>
+              </div>
+            </div>
+
+            <div class="preview-body-container">
+              <div class="preview-meta-card" id="previewMetaBox">
+                <div class="meta-avatar" id="previewAvatar">SJ</div>
+                <div class="meta-details">
+                  <strong id="previewName">Sarah Jenkins</strong>
+                  <span id="previewEmail">sarah.jenkins@example.com</span>
+                  <span class="meta-sub" id="previewCompany">St. Jude Medical Group • Clinical Director</span>
+                </div>
+              </div>
+
+              <div class="rendered-email-paper">
+                <div class="rendered-subject-row">
+                  <span class="subject-label">Subject:</span>
+                  <strong id="renderedSubjectText">Quick question for Sarah regarding St. Jude Medical Group</strong>
+                </div>
+                <div class="rendered-message-body" id="renderedBodyText">
+                  <!-- Live substituted body content -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-nav-footer">
+          <button class="btn btn-outline" onclick="goToStep(2)">⬅ Back to Contacts</button>
+          <button class="btn btn-primary" id="proceedToStep4Btn">
+            <span>Next: Review & Launch Campaign ➔</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================= -->
+    <!-- STEP 4: LAUNCH CAMPAIGN & LIVE TRACKING                 -->
+    <!-- ======================================================= -->
+    <section class="step-section hidden" id="stepSection4">
+      <div class="card">
+        <div class="card-header">
+          <div class="header-icon-badge">🚀</div>
+          <div>
+            <h2>Step 4: Review, Throttle & Dispatch Campaign</h2>
+            <p class="subtitle">Set your sending speed and launch your campaign with real-time SSE progress updates, delivery tracking, and error diagnostics.</p>
+          </div>
+        </div>
+
+        <!-- CAMPAIGN SETTINGS & SUMMARY -->
+        <div class="campaign-summary-grid">
+          <div class="summary-metric-card">
+            <span class="metric-label">Recipients Ready</span>
+            <strong class="metric-value" id="summaryTotalRecipients">0</strong>
+          </div>
+          <div class="summary-metric-card">
+            <span class="metric-label">From Account</span>
+            <strong class="metric-value code" id="summaryFromEmail">Not Configured</strong>
+          </div>
+          <div class="summary-metric-card">
+            <span class="metric-label">SMTP Server</span>
+            <strong class="metric-value code" id="summarySmtpHost">Not Configured</strong>
+          </div>
+          <div class="summary-metric-card">
+            <span class="metric-label">Sending Delay (Throttling)</span>
+            <div class="delay-select-wrap">
+              <select id="campaignDelaySelect">
+                <option value="1500">1.5s Delay (Recommended)</option>
+                <option value="2500" selected>2.5s Delay (Safe Mode)</option>
+                <option value="4000">4.0s Delay (Conservative)</option>
+                <option value="800">0.8s Delay (Fast)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- CAMPAIGN CONTROL BAR -->
+        <div class="campaign-control-bar">
+          <div class="control-buttons">
+            <button class="btn btn-primary btn-lg" id="startCampaignBtn">
+              <span class="btn-icon">🚀</span>
+              <span class="btn-text">Start Automated Email Dispatch</span>
+            </button>
+            <button class="btn btn-secondary hidden" id="pauseCampaignBtn">
+              <span>⏸️ Pause</span>
+            </button>
+            <button class="btn btn-secondary hidden" id="resumeCampaignBtn">
+              <span>▶️ Resume</span>
+            </button>
+            <button class="btn btn-outline text-danger hidden" id="stopCampaignBtn">
+              <span>🛑 Stop Campaign</span>
+            </button>
+            <button class="btn btn-primary hidden" id="retryFailedBtn">
+              <span>🔄 Retry Failed Emails</span>
+            </button>
+          </div>
+
+          <div class="campaign-export-buttons">
+            <button class="btn btn-outline" id="exportResultsBtn" disabled>
+              <span>📥 Export Delivery Log (.csv)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- GOOGLE APP PASSWORD HELPER ALERT -->
+        <div class="alert-box error hidden" id="googleAppPasswordHelpBox" style="margin-bottom: 24px; padding: 18px 22px;">
+          <div style="display:flex; align-items:flex-start; gap: 16px;">
+            <span style="font-size: 1.8rem; line-height: 1;">🔑</span>
+            <div style="flex: 1;">
+              <strong style="font-size: 1.05rem; color: #fff; display:block; margin-bottom: 4px;">Google App Password Required</strong>
+              <p style="margin: 0 0 12px; color: #fecdd3; font-weight: 400; font-size: 0.88rem; line-height: 1.5;">
+                Google blocks your standard Gmail account password for SMTP. You must generate a free 16-character <strong>App Password</strong> in your Google Account Security settings.
+              </p>
+              <div style="display:flex; gap: 12px; flex-wrap: wrap;">
+                <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener" class="btn btn-primary" style="font-size: 0.84rem; padding: 8px 16px; text-decoration: none;">
+                  🔗 Open Google App Passwords
+                </a>
+                <button class="btn btn-secondary" onclick="goToStep(1)" style="font-size: 0.84rem; padding: 8px 16px;">
+                  ✏️ Go to Step 1 & Enter App Password
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- REAL-TIME PROGRESS BAR -->
+        <div class="progress-container">
+          <div class="progress-labels">
+            <span class="progress-title">Campaign Progress: <strong id="progressPercentText">0%</strong></span>
+            <span class="progress-stats">
+              <span class="stat-sent">🟢 Sent: <b id="statSentCount">0</b></span>
+              <span class="stat-failed">🔴 Failed: <b id="statFailedCount">0</b></span>
+              <span class="stat-remaining">⚪ Total: <b id="statTotalCount">0</b></span>
+            </span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-bar-fill" id="progressBarFill" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- LIVE DELIVERY ACTIVITY LOG -->
+        <div class="delivery-log-section">
+          <h3>📡 Real-Time Dispatch Activity Log</h3>
+          <div class="table-responsive">
+            <table class="delivery-table" id="deliveryTable">
+              <thead>
+                <tr>
+                  <th width="60">#</th>
+                  <th>Recipient Name</th>
+                  <th>Recipient Email</th>
+                  <th>Company</th>
+                  <th width="140">Status</th>
+                  <th>Timestamp / Details</th>
+                </tr>
+              </thead>
+              <tbody id="deliveryTableBody">
+                <tr class="empty-row">
+                  <td colspan="6">
+                    <div class="empty-state">
+                      <p>Campaign has not started yet. Click "Start Automated Email Dispatch" above.</p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="step-nav-footer">
+          <button class="btn btn-outline" onclick="goToStep(3)">⬅ Back to Template</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: ADD SINGLE CONTACT -->
+  <div class="modal-overlay hidden" id="addContactModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>➕ Add Single Recipient</h3>
+        <button class="modal-close-btn" id="closeContactModalBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="newFirstName">First Name <span class="required">*</span></label>
+            <input type="text" id="newFirstName" placeholder="e.g. John">
+          </div>
+          <div class="form-group">
+            <label for="newLastName">Last Name</label>
+            <input type="text" id="newLastName" placeholder="e.g. Doe">
+          </div>
+          <div class="form-group">
+            <label for="newEmail">Email Address <span class="required">*</span></label>
+            <input type="email" id="newEmail" placeholder="e.g. john.doe@example.com">
+          </div>
+          <div class="form-group">
+            <label for="newCompany">Company / Organization</label>
+            <input type="text" id="newCompany" placeholder="e.g. Novotion Health">
+          </div>
+          <div class="form-group">
+            <label for="newPosition">Position / Job Title</label>
+            <input type="text" id="newPosition" placeholder="e.g. Medical Director">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="cancelContactModalBtn">Cancel</button>
+        <button class="btn btn-primary" id="saveContactModalBtn">Add to List</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================= -->
+  <!-- MODAL: AI ACCOUNT LOGIN & PROVIDER CONFIGURATION        -->
+  <!-- ======================================================= -->
+  <div class="modal-overlay hidden" id="aiAccountModal">
+    <div class="modal-box" style="max-width: 580px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:1.6rem;">🤖</span>
+          <div>
+            <h3>Connect AI Intelligence Engine</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted);">Activate any AI provider & model or link your private Ollama/OpenRouter LLM.</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="closeAiAccountModalBtn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:14px;">
+          <div class="form-group">
+            <label for="aiProviderSelect">AI Ecosystem / Provider <span class="required">*</span></label>
+            <select id="aiProviderSelect" style="width:100%;">
+              <option value="gemini" selected>Google Gemini (Official)</option>
+              <option value="openai">OpenAI (Official)</option>
+              <option value="claude">Anthropic Claude (Official)</option>
+              <option value="groq">Groq (Ultra-Fast Llama & DeepSeek)</option>
+              <option value="custom">Custom Endpoint (Ollama / OpenRouter / vLLM)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="aiModelSelect">Active Model Engine <span class="required">*</span></label>
+            <select id="aiModelSelect" style="width:100%;">
+              <!-- Dynamically populated by JS based on selected provider -->
+            </select>
+          </div>
+        </div>
+
+        <!-- Custom Base URL (Ollama, LM Studio, OpenRouter, vLLM) -->
+        <div class="form-group hidden" id="customBaseUrlGroup" style="margin-bottom:14px;">
+          <label for="aiBaseUrlInput">API Base URL <span class="required">*</span></label>
+          <input type="text" id="aiBaseUrlInput" placeholder="e.g. http://localhost:11434/v1 or https://openrouter.ai/api/v1">
+          <p style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Compatible with any OpenAI-standard endpoint or local Ollama instance.</p>
+        </div>
+
+        <!-- Custom Model Identifier -->
+        <div class="form-group hidden" id="customModelGroup" style="margin-bottom:14px;">
+          <label for="aiCustomModelInput">Custom Model Identifier <span class="required">*</span></label>
+          <input type="text" id="aiCustomModelInput" placeholder="e.g. deepseek/deepseek-chat or mistral-large-latest">
+        </div>
+
+        <div class="form-group" style="margin-bottom:16px;">
+          <label for="aiApiKeyInput">API Key <span class="required" id="aiApiKeyRequiredStar">*</span></label>
+          <div class="password-toggle-wrap">
+            <input type="password" id="aiApiKeyInput" placeholder="Paste your API key here (AIzaSy... / sk-...)">
+            <button type="button" class="btn-toggle-pw" id="toggleAiKeyBtn">👁️</button>
+          </div>
+          <div class="ai-key-hint-box" id="aiKeyHintBox" style="margin-top:8px; font-size:0.78rem; color:var(--text-muted); line-height:1.4;">
+            💡 <strong>Google Gemini:</strong> Completely free for development and commercial use. Get your key in 10 seconds at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color:var(--accent-cyan);">aistudio.google.com</a>.
+          </div>
+        </div>
+
+        <div class="alert-box hidden" id="aiAuthAlertBox"></div>
+      </div>
+
+      <div class="modal-footer" style="display:flex; justify-content:space-between;">
+        <button class="btn btn-outline text-danger hidden" id="disconnectAiKeyBtn">Disconnect</button>
+        <div style="display:flex; gap:10px; margin-left:auto;">
+          <button class="btn btn-outline" id="cancelAiAccountModalBtn">Cancel</button>
+          <button class="btn btn-primary" id="saveAiAccountBtn">
+            <span class="btn-text">Verify & Activate Model</span>
+            <span class="btn-spinner hidden"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ======================================================= -->
+  <!-- MODAL: SAVE SMTP PROFILE & FREQUENT SESSION             -->
+  <!-- ======================================================= -->
+  <div class="modal-overlay hidden" id="saveSmtpModal">
+    <div class="modal-box" style="max-width: 500px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:1.6rem;">💾</span>
+          <div>
+            <h3>Save SMTP Profile & Session</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted);">Save this email configuration for 1-click reuse across campaigns.</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="closeSaveSmtpModalBtn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group" style="margin-bottom:14px;">
+          <label for="saveProfileNameInput">Profile Nickname / Description <span class="required">*</span></label>
+          <input type="text" id="saveProfileNameInput" placeholder="e.g. Novotion Sales Gmail or St. Jude Office365">
+        </div>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <div style="background:var(--bg-elevated); border:1px solid var(--border-main); border-radius:8px; padding:12px 14px; font-size:0.82rem; line-height:1.6;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+              <span style="color:var(--text-secondary);">Server Host & Port:</span>
+              <strong class="code" id="saveProfileHostSummary">smtp.gmail.com:465</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+              <span style="color:var(--text-secondary);">Login Username:</span>
+              <strong class="code" id="saveProfileUserSummary">user@domain.com</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--text-secondary);">Display Name:</span>
+              <span id="saveProfileSenderSummary">Alex from Novotion</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label style="display:flex; align-items:center; gap:8px; font-size:0.86rem; cursor:pointer; text-transform:none; font-weight:500;">
+            <input type="checkbox" id="saveProfileRememberPassword" checked style="width:16px; height:16px; accent-color:var(--primary);">
+            <span>Remember password / app password in this saved session</span>
+          </label>
+        </div>
+
+        <div class="alert-box hidden" id="saveProfileAlertBox"></div>
+      </div>
+
+      <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px;">
+        <button class="btn btn-outline" id="cancelSaveSmtpModalBtn">Cancel</button>
+        <button class="btn btn-primary" id="confirmSaveSmtpBtn">
+          <span>💾 Save Profile</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================= -->
+  <!-- SLIDE-OVER DRAWER: NOVOTION AI AGENT ASSISTANT          -->
+  <!-- ======================================================= -->
+  <div class="drawer-overlay hidden" id="aiDrawerOverlay"></div>
+
+  <aside class="ai-agent-drawer hidden" id="aiAgentDrawer">
+    <div class="drawer-header">
+      <div class="drawer-header-title">
+        <div class="ai-glow-icon-sm">🤖</div>
+        <div>
+          <h3>Novotion AI Agent Copilot</h3>
+          <div style="display:flex; align-items:center; gap:8px; margin-top:3px;">
+            <span class="badge badge-success" id="drawerAiBadge">Gemini 2.5 Flash</span>
+            <button type="button" class="btn btn-xs" id="switchModelFromDrawerBtn" style="font-size:0.72rem; padding:2px 8px; border-radius:9999px; background:var(--bg-elevated); border:1px solid var(--border-main); color:var(--text-secondary); cursor:pointer;">Change Model ⚙️</button>
+          </div>
+        </div>
+      </div>
+      <button class="drawer-close-btn" id="closeAiDrawerBtn">&times;</button>
+    </div>
+
+    <div class="drawer-body">
+      <!-- AGENT PERSONA TABS -->
+      <div class="agent-tabs-wrap">
+        <span class="agent-tabs-label">Select Specialized AI Agent:</span>
+        <div class="agent-pills-nav">
+          <button class="agent-pill-btn active" data-agent="outreach">🎯 Cold Outreach</button>
+          <button class="agent-pill-btn" data-agent="subject_optimizer">⚡ Subject Lines</button>
+          <button class="agent-pill-btn" data-agent="follow_up">🔄 3-Step Follow-Up</button>
+          <button class="agent-pill-btn" data-agent="tone_rewrite">🎭 Tone Re-writer</button>
+        </div>
+      </div>
+
+      <!-- AGENT CONFIGURATION INPUTS -->
+      <div class="agent-inputs-box">
+        <div class="form-group" id="audienceGroup">
+          <label for="aiAudienceContext">Target Audience / Industry Context</label>
+          <input type="text" id="aiAudienceContext" placeholder="e.g. Healthcare CEOs & Clinic Medical Directors in UK/USA">
+        </div>
+
+        <div class="form-group" id="toneGroup" class="hidden" style="display:none;">
+          <label for="aiToneSelect">Desired Email Tone</label>
+          <select id="aiToneSelect">
+            <option value="executive">👔 Executive & Ultra-Concise (No Fluff)</option>
+            <option value="consultative" selected>💼 Consultative & Advisory</option>
+            <option value="friendly">🤝 Friendly & Warm</option>
+            <option value="persuasive">🔥 Persuasive & Benefit-Driven</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="aiPromptInput" id="aiPromptLabel">What are you offering / pitching?</label>
+          <textarea id="aiPromptInput" rows="4" placeholder="e.g. We provide workflow automation and patient inquiry routing that saves 15+ hours weekly for medical practices."></textarea>
+        </div>
+
+        <button class="btn btn-primary btn-block" id="executeAiAgentBtn">
+          <span class="btn-icon">⚡</span>
+          <span class="btn-text">Generate with AI Agent</span>
+          <span class="btn-spinner hidden"></span>
+        </button>
+      </div>
+
+      <!-- AGENT GENERATED OUTPUT -->
+      <div class="agent-output-box hidden" id="agentOutputBox">
+        <div class="output-header">
+          <span class="output-title">Generated Result:</span>
+          <span class="badge" id="outputModelBadge">AI Output</span>
+        </div>
+
+        <div class="output-content" id="agentOutputContent">
+          <!-- Populated by JS -->
+        </div>
+
+        <div class="output-actions">
+          <button class="btn btn-primary btn-sm" id="applyAiToTemplateBtn">
+            <span>⚡ Apply Directly to Email Template (Subject & Body)</span>
+          </button>
+          <button class="btn btn-outline btn-sm" id="copyAiOutputBtn">
+            <span>📋 Copy</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+model UserAdmin {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model AccessKey {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  role      String   // "LEAD_TEAM" or "SALES_TEAM"
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Lead {
+  id               String             @id @default(uuid())
+  candidateName    String?            @default("") // Full name of the candidate
+  phoneNumber      String?            @default("")
+  email            String?            @default("") // Candidate email address
+  jobTitle         String?            @default("") // Current or target designation/role
+  jobProfile       String?            @default("")
+  visaStatus       String?            @default("Citizen") // Work authorization status
+  linkedInUrl      String?            @default("") @map("linkedin_url") // Profile URL
+  linkedinUrl      String?            @default("")
+  chatBrief        String?            @default("") // Multi-line text screening notes
+  sourcedBy        String?            @default("") // Sourced by lead team member
+  sourcedFrom      String?            @default("") // Origin source/platform (LinkedIn, GitHub, etc.)
+  attemptedBy      String?            @default("") // Sales team member assigned for outreach
+  createdByName    String?            @default("System")
+  isCold           Boolean            @default(false)
+  temperature      String             @default("Warm") // "Cold" | "Warm" | "Hot"
+  stage            String             @default("New")  // "New" | "Contacted" | "Proposal Sent" | "Won" | "Lost"
+  dealValueUsd     Float              @default(0.0)
+  currentStatus    String             @default("Unconverted (Active)")
+  salesRepName     String?
+  salesRepId       String?
+  nextFollowUpDate DateTime?
+  createdAt        DateTime           @default(now())
+  statusUpdatedAt  DateTime           @default(now()) @updatedAt
+  interactions     SalesInteraction[]
+}
+
+model SalesInteraction {
+  id                String   @id @default(uuid())
+  leadId            String
+  lead              Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  salesRepName      String
+  status            String   // "Interested", "Not Interested", "Follow-Up Required", "Converted", "No Response", "Lost"
+  candidateFeedback String
+  updatedAt         DateTime @default(now()) @updatedAt
+}
+
+model SupportTicket {
+  id             String    @id @default(uuid())
+  clientName     String    // Client / Company Name
+  contactPerson  String    // Primary Contact Person
+  email          String
+  phone          String
+  accountStatus  String    @default("Active") // "Onboarding" | "Active" | "In Support" | "Renewal Due"
+  ticketSubject  String    // Service Request Subject
+  description    String    // Description / Notes
+  priority       String    @default("Medium") // "Low" | "Medium" | "High"
+  assignedAgent  String    @default("Support Agent")
+  status         String    @default("Open")   // "Open" | "In Progress" | "Resolved" | "Closed"
+  resolutionDate DateTime?
+  activityLogs   String    @default("Ticket registered")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now()) @updatedAt
+}

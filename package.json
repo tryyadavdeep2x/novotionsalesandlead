@@ -1,0 +1,84 @@
+{
+  "name": "novotion-sales-lead-portal",
+  "version": "1.0.0",
+  "description": "Novotion Services LLP - Sales & Lead Management Desktop Portal",
+  "main": "electron/main.cjs",
+  "author": "Novotion Services LLP",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install && npm install --prefix frontend && npm install --prefix backend && npm install --prefix functions",
+    "build:frontend": "npm run build --prefix frontend",
+    "build:backend": "npm run build --prefix backend",
+    "build:functions": "npm run build --prefix functions",
+    "build:all": "npm run build:frontend && npm run build:backend && npm run build:functions",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "electron:start": "electron .",
+    "pack:win": "npm run build:frontend && electron-builder --win --dir",
+    "dist:win": "npm run build:frontend && electron-builder --win nsis --publish never",
+    "desktop:dist": "npm run build:frontend && electron-builder --win nsis --publish never",
+    "desktop:publish": "npm run build:frontend && electron-builder --win nsis --publish always",
+    "stage:releases": "powershell -Command \"if (Test-Path release) { New-Item -ItemType Directory -Force -Path frontend/dist/releases; Copy-Item -Path release/*.exe,release/latest.yml,release/*.blockmap -Destination frontend/dist/releases -Force -ErrorAction SilentlyContinue }\"",
+    "deploy:hosting": "npm run build:frontend && firebase deploy --only hosting",
+    "deploy:functions": "npm run build:functions && firebase deploy --only functions",
+    "deploy": "npm run build:frontend && npm run build:functions && firebase deploy",
+    "deploy:all": "npm run build:frontend && npm run desktop:dist && npm run stage:releases && npm run build:functions && firebase deploy"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2",
+    "electron-updater": "^6.8.9"
+  },
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.novotionservices.salesleadportal",
+    "productName": "Novotion Sales & Lead Portal",
+    "copyright": "Copyright © 2026 Novotion Services LLP",
+    "directories": {
+      "output": "release",
+      "buildResources": "electron/assets"
+    },
+    "files": [
+      "electron/**/*",
+      "frontend/dist/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "electron/assets/icon.png",
+      "artifactName": "Novotion-Sales-Lead-Portal-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Novotion Sales & Lead Portal",
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": true
+    },
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "https://novotionsalesandlead.web.app/releases/"
+      },
+      {
+        "provider": "github",
+        "owner": "novotionservices",
+        "repo": "novotion-sales-lead-portal"
+      }
+    ]
+  }
+}

@@ -1,0 +1,194 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #f8fafc;
+  --text: #0f172a;
+  --card-bg: #ffffff;
+  --card-border: rgba(226, 232, 240, 0.8);
+  --input-bg: #ffffff;
+  --input-text: #0f172a;
+  --text-muted: #64748b;
+  --table-header: #f8fafc;
+  --table-border: rgba(226, 232, 240, 0.6);
+  --table-row-hover: #f1f5f9;
+  --glass-glow: rgba(0, 0, 0, 0.02);
+}
+
+.dark {
+  --background: #0b0f19;
+  --text: #f8fafc;
+  --card-bg: rgba(15, 23, 42, 0.85);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --input-bg: rgba(15, 23, 42, 0.95);
+  --input-text: #f8fafc;
+  --text-muted: #94a3b8;
+  --table-header: rgba(15, 23, 42, 0.85);
+  --table-border: rgba(255, 255, 255, 0.06);
+  --table-row-hover: rgba(255, 255, 255, 0.03);
+  --glass-glow: rgba(0, 0, 0, 0.25);
+}
+
+@theme {
+  --color-brand-blue-500: #3b82f6;
+  --color-brand-blue-600: #2563eb;
+  --color-brand-blue-700: #1d4ed8;
+  --color-brand-cyan-500: #06b6d4;
+  --color-brand-cyan-600: #0891b2;
+  --color-brand-cyan-700: #0e7490;
+  --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+
+  --color-canvas: var(--background);
+  --color-foreground: var(--text);
+  --color-card: var(--card-bg);
+  --color-card-border: var(--card-border);
+  --color-field: var(--input-bg);
+  --color-field-text: var(--input-text);
+  --color-muted: var(--text-muted);
+  --color-tbl-hdr: var(--table-header);
+  --color-tbl-border: var(--table-border);
+  --color-tbl-hover: var(--table-row-hover);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Modern Card Styling */
+.glass-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-card-hover {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.glass-card-hover:hover {
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
+  border-color: rgba(37, 99, 235, 0.25);
+}
+
+/* Input field glow animations */
+.glow-input {
+  transition: all 0.15s ease;
+}
+.glow-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  border-color: #2563eb;
+}
+
+/* Status Badges */
+.status-converted {
+  background-color: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  color: #059669;
+}
+.dark .status-converted {
+  color: #34d399;
+  background-color: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+.status-interested, .status-unconverted {
+  background-color: rgba(14, 165, 233, 0.1);
+  border: 1px solid rgba(14, 165, 233, 0.2);
+  color: #0284c7;
+}
+.dark .status-interested, .dark .status-unconverted {
+  color: #38bdf8;
+  background-color: rgba(14, 165, 233, 0.12);
+  border-color: rgba(14, 165, 233, 0.25);
+}
+
+.status-followup {
+  background-color: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  color: #d97706;
+}
+.dark .status-followup {
+  color: #fbbf24;
+  background-color: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.25);
+}
+
+.status-notinterested, .status-lost {
+  background-color: rgba(244, 63, 94, 0.1);
+  border: 1px solid rgba(244, 63, 94, 0.2);
+  color: #e11d48;
+}
+.dark .status-notinterested, .dark .status-lost {
+  color: #fb7185;
+  background-color: rgba(244, 63, 94, 0.12);
+  border-color: rgba(244, 63, 94, 0.25);
+}
+
+.status-noresponse {
+  background-color: rgba(100, 116, 139, 0.08);
+  border: 1px solid rgba(100, 116, 139, 0.18);
+  color: #64748b;
+}
+.dark .status-noresponse {
+  color: #94a3b8;
+  background-color: rgba(100, 116, 139, 0.12);
+  border-color: rgba(100, 116, 139, 0.2);
+}
+
+/* Temperature Tiers */
+.tier-hot {
+  background-color: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #dc2626;
+}
+.dark .tier-hot {
+  color: #f87171;
+  background-color: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+.tier-warm {
+  background-color: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  color: #d97706;
+}
+.dark .tier-warm {
+  color: #fbbf24;
+  background-color: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.25);
+}
+
+.tier-cold {
+  background-color: rgba(14, 165, 233, 0.08);
+  border: 1px solid rgba(14, 165, 233, 0.2);
+  color: #0284c7;
+}
+.dark .tier-cold {
+  color: #38bdf8;
+  background-color: rgba(14, 165, 233, 0.12);
+  border-color: rgba(14, 165, 233, 0.25);
+}
+
+/* Scrollbar customization */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3b82f6;
+}
