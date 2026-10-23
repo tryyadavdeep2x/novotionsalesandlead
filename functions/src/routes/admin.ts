@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { prisma } from '../server.js';
 import { authMiddleware, requireRole, AuthenticatedRequest } from '../middleware/auth.js';
+import { syncKeyToCloud, deleteKeyFromCloud, fetchAllKeysFromCloud } from '../services/cloudKeySync.js';
 
 const router = Router();
 
@@ -50,6 +51,21 @@ router.get('/keys', async (req, res): Promise<any> => {
       }
     }
 
+    // Auto-sync any keys from Cloud Firestore
+    try {
+      const cloudKeys = await fetchAllKeysFromCloud();
+      for (const ck of cloudKeys) {
+        if (!keys.some(item => item.key.toUpperCase() === ck.key.toUpperCase())) {
+          try {
+            const inserted = await prisma.accessKey.create({
+              data: { key: ck.key, role: ck.role, isActive: ck.isActive },
+            });
+            keys.push(inserted);
+          } catch (_) {}
+        }
+      }
+    } catch (_) {}
+
     return res.json(keys);
   } catch (error) {
     console.error('Admin fetch keys error:', error);
@@ -82,6 +98,13 @@ router.post('/keys', async (req, res): Promise<any> => {
       },
     });
 
+    // Auto-sync to Cloud Store for instant availability across all instances
+    await syncKeyToCloud({
+      key: newKey.key,
+      role: newKey.role,
+      isActive: newKey.isActive,
+    });
+
     return res.status(201).json(newKey);
   } catch (error) {
     console.error('Admin create key error:', error);
@@ -103,6 +126,14 @@ router.put('/keys/:id', async (req, res): Promise<any> => {
       where: { id: String(id) },
       data: parseResult.data,
     });
+
+    // Auto-sync updated state to Cloud Store
+    await syncKeyToCloud({
+      key: updatedKey.key,
+      role: updatedKey.role,
+      isActive: updatedKey.isActive,
+    });
+
     return res.json(updatedKey);
   } catch (error) {
     console.error('Admin update key error:', error);
@@ -115,6 +146,14 @@ router.delete('/keys/:id', async (req, res): Promise<any> => {
   const { id } = req.params;
 
   try {
+    const targetKey = await prisma.accessKey.findUnique({
+      where: { id: String(id) },
+    });
+
+    if (targetKey) {
+      await deleteKeyFromCloud(targetKey.key);
+    }
+
     await prisma.accessKey.delete({
       where: { id: String(id) },
     });

@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../server.js';
 import { authMiddleware, AuthenticatedRequest } from '../middleware/auth.js';
+import { fetchKeyFromCloud } from '../services/cloudKeySync.js';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'novotion_sales_lead_secret_jwt_key_2026';
@@ -62,6 +63,26 @@ router.post('/login', async (req, res): Promise<any> => {
             });
           }
         }
+      }
+
+      // Fallback 3: Cloud Firestore auto-provisioning
+      if (!dbKey) {
+        try {
+          const cloudData = await fetchKeyFromCloud(cleanKey);
+          if (cloudData) {
+            try {
+              dbKey = await prisma.accessKey.upsert({
+                where: { key: cloudData.key },
+                update: { isActive: cloudData.isActive, role: cloudData.role },
+                create: { key: cloudData.key, role: cloudData.role, isActive: cloudData.isActive },
+              });
+            } catch (e) {
+              dbKey = await prisma.accessKey.findFirst({
+                where: { key: cloudData.key },
+              });
+            }
+          }
+        } catch (_) {}
       }
 
       if (!dbKey) {
