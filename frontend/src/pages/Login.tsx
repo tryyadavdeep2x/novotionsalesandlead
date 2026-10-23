@@ -4,7 +4,7 @@ import { Server } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.js';
 import { motion } from 'framer-motion';
-import { KeyRound, UserCheck, AlertTriangle, Moon, Sun, ShieldCheck, Sparkles } from 'lucide-react';
+import { KeyRound, UserCheck, AlertTriangle, Moon, Sun, ShieldCheck } from 'lucide-react';
 import { NovotionLogo } from '../components/NovotionLogo.js';
 
 export const Login: React.FC = () => {
@@ -50,18 +50,7 @@ export const Login: React.FC = () => {
     }
   };
 
-  const quickFillKey = (key: string) => {
-    setLoginType('KEY');
-    setAccessKey(key);
-    setError(null);
-  };
-
-  const quickFillAdmin = () => {
-    setLoginType('ADMIN');
-    setUsername('admin');
-    setPassword('AdminPassword123!');
-    setError(null);
-  };
+  const isDesktop = typeof window !== 'undefined' && Boolean((window as any).electronAPI);
 
   return (
     <div className="min-h-screen w-full relative flex items-center justify-center bg-canvas text-foreground px-4 py-8 transition-colors duration-200">
@@ -146,7 +135,7 @@ export const Login: React.FC = () => {
               </label>
               <input
                 type="password"
-                placeholder="e.g. LEAD_KEY_2026"
+                placeholder="Enter your access key"
                 value={accessKey}
                 onChange={(e) => setAccessKey(e.target.value)}
                 className="w-full bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 text-xs glow-input font-mono"
@@ -178,7 +167,7 @@ export const Login: React.FC = () => {
               </label>
               <input
                 type="text"
-                placeholder="Username (e.g. admin)"
+                placeholder="Enter username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 text-xs glow-input"
@@ -216,62 +205,35 @@ export const Login: React.FC = () => {
           </form>
         )}
 
-        {/* Server Connection Status */}
-        <div className="mt-5 flex items-center justify-between p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-800 text-[11px]">
-          <div className="flex items-center gap-2">
-            <span className={`h-2 w-2 rounded-full ${serverOnline === true ? 'bg-emerald-500 animate-pulse' : serverOnline === false ? 'bg-rose-500' : 'bg-amber-400'}`} />
-            <span className="text-slate-500 dark:text-slate-400 font-mono text-[10px]">
-              {getServerUrl().replace(/^https?:\/\//, '')}
-            </span>
-          </div>
+        {/* Server Connection Status (Visible only in Desktop Shell) */}
+        {isDesktop && (
+          <div className="mt-5 flex items-center justify-between p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-800 text-[11px]">
+            <div className="flex items-center gap-2">
+              <span className={`h-2 w-2 rounded-full ${serverOnline === true ? 'bg-emerald-500 animate-pulse' : serverOnline === false ? 'bg-rose-500' : 'bg-amber-400'}`} />
+              <span className="text-slate-500 dark:text-slate-400 font-mono text-[10px]">
+                {getServerUrl().replace(/^https?:\/\//, '')}
+              </span>
+            </div>
 
-          <button
-            type="button"
-            onClick={() => setIsServerModalOpen(true)}
-            className="text-blue-600 dark:text-blue-400 hover:underline font-medium text-[11px] bg-transparent border-none cursor-pointer flex items-center gap-1"
-          >
-            <Server className="h-3 w-3" />
-            Change Server
-          </button>
-        </div>
-
-        {/* Demo Quick-Fill Assistant */}
-        <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800">
-          <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">
-            <Sparkles className="h-3 w-3 text-blue-500" />
-            Quick Demo Credentials
-          </div>
-          <div className="flex flex-wrap gap-1.5">
             <button
               type="button"
-              onClick={() => quickFillKey('LEAD_KEY_2026')}
-              className="text-[11px] px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium border border-slate-200/60 dark:border-slate-700/60 cursor-pointer transition-colors"
+              onClick={() => setIsServerModalOpen(true)}
+              className="text-blue-600 dark:text-blue-400 hover:underline font-medium text-[11px] bg-transparent border-none cursor-pointer flex items-center gap-1"
             >
-              Lead Specialist
-            </button>
-            <button
-              type="button"
-              onClick={() => quickFillKey('SALES_KEY_2026')}
-              className="text-[11px] px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium border border-slate-200/60 dark:border-slate-700/60 cursor-pointer transition-colors"
-            >
-              Sales Closer
-            </button>
-            <button
-              type="button"
-              onClick={quickFillAdmin}
-              className="text-[11px] px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium border border-slate-200/60 dark:border-slate-700/60 cursor-pointer transition-colors"
-            >
-              IT Admin
+              <Server className="h-3 w-3" />
+              Change Server
             </button>
           </div>
-        </div>
+        )}
       </motion.div>
 
-      <ServerConfigModal
-        isOpen={isServerModalOpen}
-        onClose={() => setIsServerModalOpen(false)}
-        onSaved={() => checkServerHealth().then(res => setServerOnline(res.ok))}
-      />
+      {isDesktop && (
+        <ServerConfigModal
+          isOpen={isServerModalOpen}
+          onClose={() => setIsServerModalOpen(false)}
+          onSaved={() => checkServerHealth().then(res => setServerOnline(res.ok))}
+        />
+      )}
     </div>
   );
 };
