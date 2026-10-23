@@ -59,10 +59,10 @@ jobs:
 
       - name: Deploy to Firebase Functions
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN || vars.FIREBASE_TOKEN }}
+          FIREBASE_TOKEN: ${{ secrets.FIREBASEKEY || secrets.FIREBASE_TOKEN || vars.FIREBASEKEY || vars.FIREBASE_TOKEN }}
         run: |
           if [ -z "$FIREBASE_TOKEN" ]; then
-            echo "::error::FIREBASE_TOKEN secret is empty. Please add FIREBASE_TOKEN in GitHub Repository Secrets."
+            echo "::error::FIREBASE_TOKEN or FIREBASEKEY secret is empty. Please add it in GitHub Repository Secrets."
             exit 1
           fi
           echo "Deploying Cloud Functions to project novotionsalesandlead..."
@@ -280,10 +280,10 @@ jobs:
 
       - name: Deploy to Firebase Hosting
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN || vars.FIREBASE_TOKEN }}
+          FIREBASE_TOKEN: ${{ secrets.FIREBASEKEY || secrets.FIREBASE_TOKEN || vars.FIREBASEKEY || vars.FIREBASE_TOKEN }}
         run: |
           if [ -z "$FIREBASE_TOKEN" ]; then
-            echo "::error::FIREBASE_TOKEN secret is empty. Please add FIREBASE_TOKEN in GitHub Repository Secrets."
+            echo "::error::FIREBASE_TOKEN or FIREBASEKEY secret is empty. Please add it in GitHub Repository Secrets."
             exit 1
           fi
           echo "Deploying Web Frontend and /releases/ to project novotionsalesandlead..."
