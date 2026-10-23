@@ -36,6 +36,34 @@ router.post('/login', async (req, res): Promise<any> => {
         });
       }
 
+      // Fallback 2: Persistent Core Team Keys auto-provisioning
+      const KNOWN_KEYS: Record<string, { key: string; role: string }> = {
+        'SHUBHAMNOVOTION2027': { key: 'ShubhamNovotion2027', role: 'LEAD_TEAM' },
+        'NEHABHOYAR2027': { key: 'Nehabhoyar2027', role: 'LEAD_TEAM' },
+        'PRAJAKTANOVOTION2027': { key: 'Prajaktanovotion2027', role: 'LEAD_TEAM' },
+        'SALES_KEY_2026': { key: 'SALES_KEY_2026', role: 'SALES_TEAM' },
+        'LEAD_KEY_2026': { key: 'LEAD_KEY_2026', role: 'LEAD_TEAM' },
+        'MICHAEL_SALES_2026': { key: 'MICHAEL_SALES_2026', role: 'SALES_TEAM' },
+        'SARAH_SALES_2026': { key: 'SARAH_SALES_2026', role: 'SALES_TEAM' },
+      };
+
+      if (!dbKey) {
+        const matched = KNOWN_KEYS[cleanKey.toUpperCase()];
+        if (matched) {
+          try {
+            dbKey = await prisma.accessKey.upsert({
+              where: { key: matched.key },
+              update: { isActive: true },
+              create: { key: matched.key, role: matched.role, isActive: true },
+            });
+          } catch (e) {
+            dbKey = await prisma.accessKey.findFirst({
+              where: { key: matched.key },
+            });
+          }
+        }
+      }
+
       if (!dbKey) {
         return res.status(401).json({ error: 'Access Key not found. Please verify the key token.' });
       }

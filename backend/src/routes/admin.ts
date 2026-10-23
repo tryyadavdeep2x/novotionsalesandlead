@@ -21,12 +21,35 @@ const keyUpdateSchema = z.object({
   role: z.enum(['LEAD_TEAM', 'SALES_TEAM']).optional(),
 });
 
+const KNOWN_KEYS: Record<string, { key: string; role: string }> = {
+  'SHUBHAMNOVOTION2027': { key: 'ShubhamNovotion2027', role: 'LEAD_TEAM' },
+  'NEHABHOYAR2027': { key: 'Nehabhoyar2027', role: 'LEAD_TEAM' },
+  'PRAJAKTANOVOTION2027': { key: 'Prajaktanovotion2027', role: 'LEAD_TEAM' },
+  'SALES_KEY_2026': { key: 'SALES_KEY_2026', role: 'SALES_TEAM' },
+  'LEAD_KEY_2026': { key: 'LEAD_KEY_2026', role: 'LEAD_TEAM' },
+  'MICHAEL_SALES_2026': { key: 'MICHAEL_SALES_2026', role: 'SALES_TEAM' },
+  'SARAH_SALES_2026': { key: 'SARAH_SALES_2026', role: 'SALES_TEAM' },
+};
+
 // List all Access Keys
 router.get('/keys', async (req, res): Promise<any> => {
   try {
-    const keys = await prisma.accessKey.findMany({
+    let keys = await prisma.accessKey.findMany({
       orderBy: { createdAt: 'desc' },
     });
+
+    // Auto-seed known team keys if any are missing
+    for (const [k, v] of Object.entries(KNOWN_KEYS)) {
+      if (!keys.some(item => item.key.toUpperCase() === k)) {
+        try {
+          const inserted = await prisma.accessKey.create({
+            data: { key: v.key, role: v.role, isActive: true },
+          });
+          keys.push(inserted);
+        } catch (_) {}
+      }
+    }
+
     return res.json(keys);
   } catch (error) {
     console.error('Admin fetch keys error:', error);
