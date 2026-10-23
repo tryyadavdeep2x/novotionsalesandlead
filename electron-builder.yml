@@ -35,5 +35,5 @@ publish:
   - provider: generic
     url: "https://novotionsalesandlead.web.app/releases/"
   - provider: github
-    owner: novotionservices
-    repo: novotion-sales-lead-portal
+    owner: tryyadavdeep2x
+    repo: novotionsalesandlead
